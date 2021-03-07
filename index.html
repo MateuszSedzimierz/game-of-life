@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Game of Life</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <h1>The Game of Life</h1>
+        <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" class="links">About</a>
+
+        <div id="to-survive" class="numbers-wrapper">
+            <p>Number of living neighbours when cell survives:</p>
+        </div>
+        
+        <div id="to-reborn" class="numbers-wrapper">
+            <p>Number of living neighbours when dead cell comes to life:</p>
+        </div>
+
+        <div id="options">
+            <button id="play" class="option-button">Start/Stop</button>
+            <button id="next-step" class="option-button">Next generation</button>
+            <button id="clear" class="option-button">Clear cells</button>
+            <button id="random" class="option-button">Random fill</button>
+            <label for="speed" id="speed-label">Speed:</label>
+            <input type="range" id="speed">
+        </div>
+    </nav>
+
+    <main>
+        <table id="board"></table>
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
