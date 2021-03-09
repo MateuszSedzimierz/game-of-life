@@ -10,6 +10,20 @@ body {
     background-color: #222222;
     width: 960px;
     margin: auto;
+}
+
+header {
+    width: 700px;
+    margin-left: auto;
+    margin-right: 0;
+    text-align: center;
+}
+
+header>h1 {
+    font-size: 64px;
+}
+
+content {
     display: flex;
     align-items: center;
 }
@@ -35,6 +49,26 @@ main {
 
 .numbers-wrapper {
     text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.number-button {
+    font-family: 'Inconsolata', monospace;
+    font-size: 18px;	
+    font-weight: 700;
+    color: #d3d3d3;
+    background-color: #222222;
+    border: 2px solid #d3d3d3;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.number-button-clicked {
+    color: #00C000;
+    border: 2px solid #00C000;
 }
 
 #options {
@@ -43,26 +77,32 @@ main {
 
 .option-button {
     font-family: 'Inconsolata', monospace;
-    font-size: 16px;	
+    font-size: 18px;	
     font-weight: 700;
     color: #d3d3d3;
     background-color: #222222;
     display: block;
-    min-width: 150px;
+    min-width: 180px;
     min-height: 30px;
     border: 2px solid #d3d3d3;
     border-radius: 15px;
     padding: 8px;
-    margin: 14px 0;
+    margin: 20px 0;
     cursor: pointer;
 }
 
-.option-button:hover {
+.number-button:hover, .option-button:hover {
     color: #ffffff;
     border: 2px solid #ffffff;
+    background-color: #333333;
 }
 
-.option-button:focus {
+.number-button-clicked:hover {
+    color: #00C000;
+    border: 2px solid #00C000;
+}
+
+.number-button:focus, .option-button:focus {
     outline: none;
 }
 
@@ -81,4 +121,8 @@ main {
     padding: 0;
     border: 1px solid #ffffff;
     cursor: pointer;
+}
+
+.alive-cell {
+    background-color: #00C000;
 }
