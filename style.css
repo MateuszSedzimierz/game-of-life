@@ -98,7 +98,12 @@ main {
     cursor: pointer;
 }
 
-.number-button:hover, .option-button:hover {
+.number-button:disabled, .option-button:disabled {
+    opacity: 0.5;
+    cursor:default; 
+}
+
+.number-button:hover:enabled, .option-button:hover:enabled {
     color: #ffffff;
     border: 2px solid #ffffff;
     background-color: #333333;
