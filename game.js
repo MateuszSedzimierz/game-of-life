@@ -7,6 +7,7 @@ const cells = new Array(SIZE);
 const nextGeneration = new Array(SIZE);
 
 var running = null;
+var speed = 1000;
 
 class Cell {
     constructor(id, isAlive) {
@@ -31,7 +32,7 @@ $(function() {
     createOptions();
     createBoard();
 
-    $('#start').on('click', function(event) {
+    $('#start').on('click', function() {
         if (running == null) {
             start();
         } else {
@@ -43,7 +44,11 @@ $(function() {
         if (startIsPossible()) {
             makeStep();
         }
-    })
+    });
+
+    $('#speed').on('input', function () { 
+        refreshSpeed($(this).val());
+    });
 
     $('#clear').on('click', () => clearBoard());
 
@@ -87,10 +92,10 @@ function createBoard() {
     let $board = $('#board');
 
     for (let i = 0; i < SIZE; i++) {
-        let $row = $('<tr>');
         cells[i] = new Array(SIZE);
         nextGeneration[i] = new Array(SIZE);
-                
+             
+        let $row = $('<tr>');
         for (let j = 0; j < SIZE; j++) {
             let id = 'Cell-' + i + '-' + j;
             $cell = $('<td id="' + id + '" class="cell">');
@@ -112,18 +117,15 @@ function startIsPossible() {
     let $message = $('#error-message');
     
     if (toSurviveParams.length == 0 || toRebornParams.length == 0) {
-        $message
-            .text('Parameters cannot be empty')
-            .fadeTo(1000, 1);
+        $message.text('Parameters cannot be empty')
     } else if ($('.alive-cell').length == 0) {
-        $message
-            .text('Select any alive cells')
-            .fadeTo(1000, 1)
+        $message.text('Select any alive cells')
     } else {
         $message.fadeTo(1000, 0);
         return true;
     }
-
+    
+    $message.css('opacity', '1');
     return false;
 }
 
@@ -131,7 +133,7 @@ function start() {
     if (startIsPossible()) {
         $('#start').text('Stop');
         setButtonsDisabled(true);
-        running = setInterval(makeStep, 1000);
+        running = setInterval(makeStep, speed);
     }
 }
 
@@ -149,7 +151,7 @@ function setButtonsDisabled(disabled) {
     $('#clear').prop('disabled', disabled);
     $('#random').prop('disabled', disabled);
     $('.number-button').prop('disabled', disabled);
-    $('.cell').css('cursor', disabled === true ? 'default' : 'pointer');
+    $('#board').css('cursor', disabled === true ? 'default' : 'pointer');
 }
 
 function makeStep() {
@@ -204,6 +206,14 @@ function updateCells() {
     }
     if (updated === 0) {
         stop();
+    }
+}
+
+function refreshSpeed(value) {
+    speed = 2000 - value;
+    if (running !== null) {
+        clearInterval(running);
+        running = setInterval(makeStep, speed);
     }
 }
 

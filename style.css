@@ -75,7 +75,6 @@ main {
     font-size: 14px;
     color: #F00000;
     min-height: 15px;
-    opacity: 0;
 }
 
 #options {
@@ -109,9 +108,9 @@ main {
     background-color: #333333;
 }
 
-.number-button-clicked:hover {
-    color: #00C000;
-    border: 2px solid #00C000;
+.number-button-clicked:hover:enabled {
+    color: #00F000;
+    border: 2px solid #00F000;
 }
 
 .number-button:focus, .option-button:focus {
@@ -125,6 +124,7 @@ main {
 #board {
     empty-cells: show;
     border-collapse: collapse;
+    cursor: pointer;
 }
 
 .cell {
@@ -132,7 +132,6 @@ main {
     height: 11px;
     padding: 0;
     border: 1px solid #ffffff;
-    cursor: pointer;
 }
 
 .alive-cell {
