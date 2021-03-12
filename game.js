@@ -3,82 +3,69 @@ const SIZE = 58;
 const toSurviveParams = new Array();
 const toRebornParams = new Array();
 
-const cells = new Array(SIZE);
-const nextGeneration = new Array(SIZE);
+const cellIds = new Array(SIZE);
+const states = new Array(SIZE);
+const nextStates = new Array(SIZE);
 
+var aliveCells = 0;
 var running = null;
-var speed = 1000;
+var speed = 700;
 
-class Cell {
-    constructor(id, isAlive) {
-        this.id = id;
-        this.isAlive = isAlive;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    addParameterButtons();
+    addBoard();
 
-    setAlive(alive) {
-        const $cell = $('#' + this.id);
-        
-        if (alive === true) {
-            $cell.addClass('alive-cell');
-        } else {
-            $cell.removeClass('alive-cell');
-        }
-
-        this.isAlive = alive;
-    }
-}
-
-$(function() {
-    createOptions();
-    createBoard();
-
-    $('#start').on('click', function() {
-        if (running == null) {
-            start();
-        } else {
+    document.getElementById('start').addEventListener('click', () => {
+        if (running) {
             stop();
+        } else {
+            start();
         }
     });
 
-    $('#next-step').on('click', function() {
-        if (startIsPossible()) {
-            makeStep();
+    document.getElementById('next-step').addEventListener('click', () => {
+        if (isReadyToStart()) {
+            step();
         }
     });
 
-    $('#speed').on('input', function () { 
-        refreshSpeed($(this).val());
+    document.getElementById('speed').addEventListener('input', function() {
+        refreshSpeed(this.value);
     });
 
-    $('#clear').on('click', () => clearBoard());
+    document.getElementById('clear').addEventListener('click', () => {
+        clearBoard();
+    });
 
-    $('#random').on('click', () => randomFill());
-})
+    document.getElementById('random').addEventListener('click', () => {
+        randomFill();
+    });
+});
 
-function createOptions() {
-    $toSurviveDiv = $('#to-survive');
-    $toRebornDiv = $('#to-reborn');
+function addParameterButtons() {
+    let toSurvive = document.getElementById('to-survive');
+    let toReborn = document.getElementById('to-reborn');
 
-    for (let i = 0; i < 9; i++) {
-      createNumberButton($toSurviveDiv, i, toSurviveParams);
-      createNumberButton($toRebornDiv, i, toRebornParams);  
+    for (let i = 0; i <= 8; i++) {
+        createNumberButton(toSurvive, i, toSurviveParams);
+        createNumberButton(toReborn, i, toRebornParams);
     }
 }
 
-function createNumberButton($parent, value, array) {
-    const $button = $('<button class="number-button">' + value + '</button>');
-
-    $button.on('click', function() {
-        if ($(this).hasClass('number-button-clicked')) {
-            $(this).removeClass('number-button-clicked');
+function createNumberButton(parent, value, array) {
+    let button = document.createElement('button');
+    button.innerHTML = value;
+    button.classList.add('number-button');
+    button.addEventListener('click', function() {
+        if (array.includes(value)) {
+            this.classList.remove('number-button-clicked');
             removeFromArray(array, value);
         } else {
-            $(this).addClass('number-button-clicked');
+            this.classList.add('number-button-clicked');
             array.push(value);
         }
-    });
-    
-    $parent.append($button);
+    })
+    parent.appendChild(button);
 }
 
 function removeFromArray(array, value) {
@@ -88,149 +75,175 @@ function removeFromArray(array, value) {
     }
 }
 
-function createBoard() {
-    let $board = $('#board');
-
+function addBoard() {
+    const board = document.getElementById('board');
     for (let i = 0; i < SIZE; i++) {
-        cells[i] = new Array(SIZE);
-        nextGeneration[i] = new Array(SIZE);
-             
-        let $row = $('<tr>');
-        for (let j = 0; j < SIZE; j++) {
-            let id = 'Cell-' + i + '-' + j;
-            $cell = $('<td id="' + id + '" class="cell">');
-            cells[i][j] = new Cell(id, false);
- 
-            $cell.on('click', function() {
-                if (running === null)
-                    cells[i][j].setAlive(!cells[i][j].isAlive);
-            });
- 
-            $row.append($cell);
-        }
+        cellIds[i] = new Array(SIZE);
+        states[i] = new Array(SIZE);
+        nextStates[i] = new Array(SIZE);
 
-        $board.append($row);
-    }   
+        let row = document.createElement('tr');
+        for (let j = 0; j < SIZE; j++) {
+            let id = 'cell-' + i + '-' + j;
+            let cell = document.createElement('td');
+            cell.id = id;
+            cell.classList.add('cell');
+            cell.addEventListener('click', function() {
+                if (running === null) {
+                    changeState(i, j);
+                }
+            })
+            cellIds[i][j] = id;
+            states[i][j] = 0;
+            row.appendChild(cell);
+        }
+        board.appendChild(row);
+    }
 }
 
-function startIsPossible() {
-    let $message = $('#error-message');
-    
-    if (toSurviveParams.length == 0 || toRebornParams.length == 0) {
-        $message.text('Parameters cannot be empty')
-    } else if ($('.alive-cell').length == 0) {
-        $message.text('Select any alive cells')
+function changeState(row, column) {
+    let cell = document.getElementById(cellIds[row][column]); 
+    if (states[row][column] === 1) {
+        cell.classList.remove('alive-cell');
+        states[row][column] = 0;
+        aliveCells--;
     } else {
-        $message.fadeTo(1000, 0);
+        cell.classList.add('alive-cell');
+        states[row][column] = 1;
+        aliveCells++;
+    }
+}
+
+function isReadyToStart() {
+    let message = document.getElementById('error-message');
+    if (!toSurviveParams.length || !toRebornParams.length) {
+        message.innerHTML = 'Parameters cannot be empty';
+    } else if (aliveCells === 0) {
+        message.innerHTML = 'Select any alive cells';
+    } else {
+        let opacity = 1;
+        let fadeOut = setInterval(() => {
+            if (opacity >= 0) {
+                message.style.opacity = opacity;
+                opacity -= 0.05;
+            } else {
+                clearInterval(fadeOut);
+            }
+        }, 50);
+        message.innerHTML = '';
         return true;
     }
     
-    $message.css('opacity', '1');
+    message.style.opacity = 1;
     return false;
 }
 
 function start() {
-    if (startIsPossible()) {
-        $('#start').text('Stop');
+    if (isReadyToStart()) {
+        document.getElementById('start').innerHTML = 'Stop';
         setButtonsDisabled(true);
-        running = setInterval(makeStep, speed);
-    }
-}
-
-function stop() {
-    if (running !== null) {
-        $('#start').text('Start');
-        setButtonsDisabled(false);
-        clearInterval(running);
-        running = null;
+        running = setInterval(step, speed);
     }
 }
 
 function setButtonsDisabled(disabled) {
-    $('#next-step').prop('disabled', disabled);
-    $('#clear').prop('disabled', disabled);
-    $('#random').prop('disabled', disabled);
-    $('.number-button').prop('disabled', disabled);
-    $('#board').css('cursor', disabled === true ? 'default' : 'pointer');
+    document.getElementById('next-step').disabled = disabled;
+    document.getElementById('clear').disabled = disabled;
+    document.getElementById('random').disabled = disabled;
+    document.getElementById('board').disabled = disabled;
+
+    const numberButtons = document.querySelectorAll('.number-button');
+    for (let i = 0; i < numberButtons.length; i++) {
+        numberButtons[i].disabled = disabled;
+    }
 }
 
-function makeStep() {
+function stop() {
+    document.getElementById('start').innerHTML = 'Start';
+    setButtonsDisabled(false);
+    clearInterval(running);
+    running = null;
+}
+
+function step() {
     for (let i = 0; i < SIZE; i++) {
         for (let j = 0; j < SIZE; j++) {
-            let neighbours = countLivingNeighbours(i, j);
-            nextGeneration[i][j] = false;
-            if (cells[i][j].isAlive === true) {
-                if (toSurviveParams.includes(neighbours)) {
-                    nextGeneration[i][j] = true;
+            nextStates[i][j] = 0;
+            let aliveAround = countAliveAround(i, j);
+            if (states[i][j] === 1) {
+                if (toSurviveParams.includes(aliveAround)) {
+                    nextStates[i][j] = 1;
                 }
-            } else if (toRebornParams.includes(neighbours)) {
-                nextGeneration[i][j] = true;
+            } else if (toRebornParams.includes(aliveAround)) {
+                nextStates[i][j] = 1;
             }
         }
     }
     updateCells();
 }
 
-function countLivingNeighbours(row, column) {
-    let counter = 0;
-    counter += testNeighbour(row - 1, column - 1);
-    counter += testNeighbour(row - 1, column);
-    counter += testNeighbour(row - 1, column + 1);
-    counter += testNeighbour(row, column - 1);
-    counter += testNeighbour(row, column + 1);
-    counter += testNeighbour(row + 1, column - 1);
-    counter += testNeighbour(row + 1, column);
-    counter += testNeighbour(row + 1, column + 1);
-    return counter;
+function countAliveAround(row, column) {
+    let alive = 0;
+    alive += testCell(row - 1, column - 1);
+    alive += testCell(row - 1, column);
+    alive += testCell(row - 1, column + 1);
+    alive += testCell(row, column - 1);
+    alive += testCell(row, column + 1);
+    alive += testCell(row + 1, column - 1);
+    alive += testCell(row + 1, column);
+    alive += testCell(row + 1, column + 1);
+    return alive;
 }
 
-function testNeighbour(x, y) {
+function testCell(x, y) {
     try {
-        if (cells[x][y].isAlive === true) {
-            return 1;
-        }
-    } catch (error) {}
-    return 0;
+        return states[x][y];
+    } catch(error) {
+        return 0;
+    }
 }
 
 function updateCells() {
     let updated = 0;
     for (let i = 0; i < SIZE; i++) {
         for (let j = 0; j < SIZE; j++) {
-            let state = nextGeneration[i][j];
-            if (cells[i][j].isAlive !== state) {
-                cells[i][j].setAlive(state);
+            if (states[i][j] != nextStates[i][j]) {
+                changeState(i, j);
                 updated++;
             }
         }
     }
-    if (updated === 0) {
+
+    if (updated === 0 || aliveCells === 0) {
         stop();
     }
 }
 
 function refreshSpeed(value) {
-    speed = 2000 - value;
-    if (running !== null) {
+    speed = value * -1;
+    if (running) {
         clearInterval(running);
-        running = setInterval(makeStep, speed);
+        running = setInterval(step, speed);
     }
 }
 
 function clearBoard() {
     for (let i = 0; i < SIZE; i++) {
-		for (let j = 0; j < SIZE; j++) {
-			cells[i][j].setAlive(false);
-		}
-	}
+        for (let j = 0; j < SIZE; j++) {
+            if (states[i][j] === 1) {
+                changeState(i, j);
+            }
+        }
+    }
 }
 
 function randomFill() {
     clearBoard();
     for (let i = 0; i < SIZE; i++) {
-		for (let j = 0; j < SIZE; j++) {
-            if (Math.random() >= 0.90)
-                cells[i][j].setAlive(true);
-		}
-	}
+        for (let j = 0; j < SIZE; j++) {
+            if (Math.random() >= 0.9) {
+                changeState(i, j)
+            }
+        }
+    }
 }
